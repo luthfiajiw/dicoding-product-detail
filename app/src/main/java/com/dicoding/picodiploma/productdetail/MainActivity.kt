@@ -1,17 +1,56 @@
 package com.dicoding.picodiploma.productdetail
 
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowInsets
 import android.view.WindowManager
+import com.dicoding.picodiploma.productdetail.databinding.ActivityMainBinding
+import com.dicoding.picodiploma.productdetail.repositories.RemoteDataSource
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setupView()
+        setupAction()
+        setupData()
+    }
+
+    private fun setupData() {
+        val repository = RemoteDataSource(this)
+        val product = repository.getDetailProduct()
+
+        product.apply {
+            binding.apply {
+                previewImageView.setImageResource(image)
+                nameTextView.text = name
+                nameTextView.text = name
+                storeTextView.text = store
+                colorTextView.text = color
+                sizeTextView.text = size
+                descTextView.text = desc
+                priceTextView.text = price.withCurrencyFormat()
+                dateTextView.text = getString(R.string.dateFormat, date.withDateFormat())
+                ratingTextView.text = getString(
+                    R.string.ratingFormat,
+                    rating.withNumberingFormat(),
+                    countRating.withNumberingFormat()
+                )
+            }
+        }
+    }
+
+    private fun setupAction() {
+        binding.settingIcon?.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_LOCALE_SETTINGS))
+        }
     }
 
     private fun setupView() {
